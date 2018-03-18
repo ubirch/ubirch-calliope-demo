@@ -1,0 +1,298 @@
+[
+    {
+        "id": "8711b497.ff2bf8",
+        "type": "serial in",
+        "z": "55a12b51.62a324",
+        "name": "",
+        "serial": "815932dd.a0adf",
+        "x": 130,
+        "y": 320,
+        "wires": [
+            [
+                "c58d4594.38e7f8",
+                "13b2efb4.9ff83",
+                "577bef1a.b34c1"
+            ]
+        ]
+    },
+    {
+        "id": "a9b5b1bf.e6322",
+        "type": "function",
+        "z": "55a12b51.62a324",
+        "name": "parseMessage",
+        "func": "msg.payload = new Buffer(msg.payload, \"hex\");\n\nif(msg.payload[0] == 0x01 && msg.payload[1] == 0xCE) {\n    if(msg.payload[6] == 0xd9) {\n        // data shorter than 256 byte\n        var parsed = {\n            \"payload\": {\n                \"raw\": msg.payload,  \n                \"id\": msg.payload.slice(2,6),\n                \"signature\": msg.payload.slice(8,72),\n                \"data\": String.fromCharCode.apply(null, msg.payload.slice(72))\n            }\n        };\n    } else {\n        // data longer than 256 byte\n        var parsed = {\n            \"payload\": {\n                \"raw\": msg.payload,  \n                \"id\": msg.payload.slice(2,6),\n                \"signature\": msg.payload.slice(9,73),\n                \"data\": String.fromCharCode.apply(null, msg.payload.slice(73))\n            }\n        };  \n    }  \n   \n    return parsed;   \n}\n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 560,
+        "y": 440,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "ef759559.45d7c8",
+        "type": "debug",
+        "z": "55a12b51.62a324",
+        "name": "",
+        "active": true,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "payload",
+        "x": 990,
+        "y": 700,
+        "wires": []
+    },
+    {
+        "id": "6c255133.a4a48",
+        "type": "function",
+        "z": "55a12b51.62a324",
+        "name": "filter MsgPack Data",
+        "func": "data = new Buffer(msg.payload, \"hex\");\n\nif((data[0] == 0x00 || data[0] == 0x01) && data[1] == 0xCE) {\n    return msg;   \n}\n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 590,
+        "y": 160,
+        "wires": [
+            [
+                "a67bb2f.e303f5"
+            ]
+        ]
+    },
+    {
+        "id": "a67bb2f.e303f5",
+        "type": "function",
+        "z": "55a12b51.62a324",
+        "name": "HEX decode",
+        "func": "msg.payload = new Buffer(msg.payload, \"hex\");\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 830,
+        "y": 60,
+        "wires": [
+            [
+                "caaa767d.6cb3c8"
+            ]
+        ]
+    },
+    {
+        "id": "88257b5f.9271b8",
+        "type": "mqtt in",
+        "z": "55a12b51.62a324",
+        "name": "inbox-dev",
+        "topic": "ubirch-dev/ubirch/devices/a57072da-ca0a-424e-ab9f-bd347e2de12c/processed",
+        "qos": "1",
+        "broker": "f0337422.edebf8",
+        "x": 200,
+        "y": 640,
+        "wires": [
+            [
+                "ef759559.45d7c8"
+            ]
+        ]
+    },
+    {
+        "id": "c58d4594.38e7f8",
+        "type": "change",
+        "z": "55a12b51.62a324",
+        "name": "setConfig local",
+        "rules": [
+            {
+                "t": "set",
+                "p": "url",
+                "pt": "msg",
+                "to": "http://localhost:8080/api/avatarService/v1/device/update/mpack",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 360,
+        "y": 160,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "c31f56c1.f01248",
+        "type": "mqtt in",
+        "z": "55a12b51.62a324",
+        "name": "inbox-local",
+        "topic": "local-dev/ubirch/devices/281a3e42-86a3-4547-849c-b750d3bd30ba/processed",
+        "qos": "1",
+        "broker": "321f8281.26a8de",
+        "x": 200,
+        "y": 520,
+        "wires": [
+            [
+                "ef759559.45d7c8"
+            ]
+        ]
+    },
+    {
+        "id": "caaa767d.6cb3c8",
+        "type": "http request",
+        "z": "55a12b51.62a324",
+        "name": "post ubirch MsgPack",
+        "method": "POST",
+        "ret": "txt",
+        "url": "",
+        "tls": "",
+        "x": 880,
+        "y": 340,
+        "wires": [
+            [
+                "ef759559.45d7c8"
+            ]
+        ]
+    },
+    {
+        "id": "70389259.6eef9c",
+        "type": "mqtt in",
+        "z": "55a12b51.62a324",
+        "name": "inbox-demo",
+        "topic": "ubirch-demo/ubirch/devices/95193c53-9dc4-442e-a321-794e9fdcc0dd/processed",
+        "qos": "1",
+        "broker": "fb769f5f.e2935",
+        "x": 210,
+        "y": 740,
+        "wires": [
+            [
+                "ef759559.45d7c8"
+            ]
+        ]
+    },
+    {
+        "id": "13b2efb4.9ff83",
+        "type": "change",
+        "z": "55a12b51.62a324",
+        "name": "setConfig dev",
+        "rules": [
+            {
+                "t": "set",
+                "p": "url",
+                "pt": "msg",
+                "to": "https://api.ubirch.dev.ubirch.com/api/avatarService/v1/device/update/mpack",
+                "tot": "str"
+            },
+            {
+                "t": "set",
+                "p": "__url",
+                "pt": "msg",
+                "to": "https://api.ubirch.demo.ubirch.com/api/avatarService/v1/device/update/mpack",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 400,
+        "y": 260,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "577bef1a.b34c1",
+        "type": "change",
+        "z": "55a12b51.62a324",
+        "name": "setConfig demo",
+        "rules": [
+            {
+                "t": "set",
+                "p": "url",
+                "pt": "msg",
+                "to": "https://api.ubirch.demo.ubirch.com/api/avatarService/v1/device/update/mpack",
+                "tot": "str"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 400,
+        "y": 340,
+        "wires": [
+            [
+                "6c255133.a4a48"
+            ]
+        ]
+    },
+    {
+        "id": "815932dd.a0adf",
+        "type": "serial-port",
+        "z": "",
+        "serialport": "/dev/cu.usbmodem1412",
+        "serialbaud": "115200",
+        "databits": "8",
+        "parity": "none",
+        "stopbits": "1",
+        "newline": "\\n",
+        "bin": "false",
+        "out": "char",
+        "addchar": false
+    },
+    {
+        "id": "f0337422.edebf8",
+        "type": "mqtt-broker",
+        "z": "",
+        "name": "ubirchDev",
+        "broker": "mq.dev.ubirch.com",
+        "port": "1883",
+        "clientid": "",
+        "usetls": false,
+        "compatmode": true,
+        "keepalive": "60",
+        "cleansession": true,
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": ""
+    },
+    {
+        "id": "321f8281.26a8de",
+        "type": "mqtt-broker",
+        "z": "",
+        "name": "localhost",
+        "broker": "localhost",
+        "port": "1883",
+        "clientid": "",
+        "usetls": false,
+        "compatmode": true,
+        "keepalive": "60",
+        "cleansession": true,
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": ""
+    },
+    {
+        "id": "fb769f5f.e2935",
+        "type": "mqtt-broker",
+        "z": "",
+        "name": "ubirchDemo",
+        "broker": "mq.demo.ubirch.com",
+        "port": "1883",
+        "clientid": "",
+        "usetls": false,
+        "compatmode": true,
+        "keepalive": "60",
+        "cleansession": true,
+        "willTopic": "",
+        "willQos": "0",
+        "willPayload": "",
+        "birthTopic": "",
+        "birthQos": "0",
+        "birthPayload": ""
+    }
+]
