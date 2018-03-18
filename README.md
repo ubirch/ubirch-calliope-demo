@@ -6,7 +6,7 @@ Calliope / NodeRed based demo project to play with signed [ubirchProtocol](https
 
 ![Calliope Sensor](./resources/calliopePXT.png)
 
-![Calliope Sensor](./src/mini-calliSignedSensor.hex)
+[Calliope Sensor](./src/mini-calliSignedSensor.hex)
 
 # NodeRed
 
